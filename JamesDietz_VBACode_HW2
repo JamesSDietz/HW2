@@ -1,0 +1,85 @@
+Attribute VB_Name = "Module2"
+Sub moderateChange()
+
+' for each loop to do same for each worksheet
+For Each ws In Worksheets
+
+
+'establishing variables
+        Dim lastrowA As Long
+        Dim lastrowL As Long
+        Dim transaction As String
+        Dim c As Long
+        Dim r As Long
+        Dim i As Long
+        Dim volumesum As Double
+        Dim openprice As Double
+        Dim closeprice As Double
+        Dim difference As Double
+        Dim pctchange As Double
+        
+        
+'finding last row number for columns of interest and formatting width and writing headers
+        lastrowA = ws.Cells(Rows.Count, "A").End(xlUp).Row
+        lastrowL = ws.Cells(Rows.Count, "L").End(xlUp).Row
+        
+        ws.Columns("J:M").ColumnWidth = 18
+        ws.Cells(1, 10) = "Ticker Label"
+        ws.Cells(1, 11) = "Yearly Change"
+        ws.Cells(1, 12) = "Percent Change"
+        ws.Cells(1, 13) = "Total Volume"
+        
+        'setting inital values where c equalls row to write ticker symbol and calculated totals.
+        c = 2
+        volumesum = 0
+        
+        'for next loop that will calculate total volume for each ticker label as well as write those totals. it also:
+        ' * stores opening and closing price for each ticker symbol and calculates differences and percent change and writes to cells
+        
+        For r = 2 To lastrowA
+        
+            openprice = ws.Cells(r, 3).Value
+            
+            transaction = ws.Cells(r, 1).Value
+           
+                If transaction = ws.Cells(r + 1, 1).Value Then
+                    volumesum = volumesum + ws.Cells(r, 7).Value
+                Else: ws.Cells(c, 10) = transaction
+                        volumesum = volumesum + ws.Cells(r, 7).Value
+                        ws.Cells(c, 13) = volumesum
+                        closeprice = ws.Cells(r, 6).Value
+                        difference = closeprice - openprice
+                        ws.Cells(c, 11) = difference
+                        pctchange = difference / openprice
+                        ws.Cells(c, 12) = pctchange
+                        ws.Cells(c, 12).NumberFormat = "0.00%"
+                        c = c + 1
+                        volumesum = 0
+        
+            
+                End If
+                
+        Next r
+
+'conditional formats percentage change: green for postive, red for negative, no format for zero change
+    For i = 2 To lastrowL
+    
+        If ws.Cells(i, 12).Value < 0 Then
+            ws.Cells(i, 12).Interior.ColorIndex = 3
+            
+            ElseIf ws.Cells(i, 12).Value > 0 Then
+                ws.Cells(i, 12).Interior.ColorIndex = 4
+                
+            End If
+            
+            
+    Next i
+
+
+
+Next ws
+
+    
+End Sub
+
+
